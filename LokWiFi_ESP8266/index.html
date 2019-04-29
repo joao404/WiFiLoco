@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "rocrail.net">
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+         <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+            <title>Ethernet Decoder: Home</title>
+		
+		<link rel="stylesheet" type="text/css"  href="styles.css">
+		
+		<style type="text/css"> 
+	
+	* {
+	  -webkit-touch-callout: none; /* prevent callout to copy image, etc when tap to hold */
+	  -webkit-text-size-adjust: none; /* prevent webkit from resizing text to fit */
+	/* make transparent link selection, adjust last value opacity 0 to 1.0 */
+	  -webkit-tap-highlight-color: rgba(0,0,0,0); 
+	  -webkit-user-select: none; /* prevent copy paste, to allow, change 'none' to 'text' */
+	  -webkit-tap-highlight-color: rgba(0,0,0,0); 
+	}
+	
+	</style>
+		
+		<script>
+		function openNav() {
+            document.getElementById("mySidenav").style.width = "250px";
+            document.getElementById("main").style.marginLeft = "250px";
+        }
+
+        function closeNav() {
+            document.getElementById("mySidenav").style.width = "0";
+            document.getElementById("main").style.marginLeft= "0";
+        }
+		
+		function vollbild() {
+
+			var element = document.getElementById("inhalt");
+
+			if (element.requestFullScreen) {
+
+				if (!document.fullScreen) {
+					element.requestFullscreen();
+				} else {
+				document.exitFullScreen();
+				}
+
+			} else if (element.mozRequestFullScreen) {
+
+				if (!document.mozFullScreen) {
+					element.mozRequestFullScreen();
+				} else {
+					document.mozCancelFullScreen();
+				}
+
+			} else if (element.webkitRequestFullScreen) {
+
+				if (!document.webkitIsFullScreen) {
+					element.webkitRequestFullScreen();
+				} else {
+					document.webkitCancelFullScreen();
+				}
+
+			}		
+
+		}
+
+		//document.getElementById("vollbild_link").addEventListener("click", vollbild, false);
+		
+		
+		var Direction=0;
+		var Speed=0;
+		var LightMode=0;
+		var LightFront=0;
+		var LightBack=0;
+		
+		function OnloadFunction(){
+			//vollbild();
+			document.getElementById("LightModeValue").innerHTML = LightMode;
+			document.getElementById("LightFrontValue").innerHTML = LightFront;
+			document.getElementById("LightBackValue").innerHTML = LightBack;
+			nocache = "nocache=" + Math.random()*1000000;
+			var request = new XMLHttpRequest();
+				request.onreadystatechange=function()
+				{					
+					if(this.readyState==4 && this.status==200)
+					{
+						if(this.responseXML != null)
+						{
+							//extract XML data from XML file
+							//document.getElementById("IPAdr").value =
+								//this.responseXML.getElementsByTagName('IPAdr')[0].childNodes[0].nodeValue;
+							Direction=this.responseXML.getElementsByTagName('DIRECTION')[0].childNodes[0].nodeValue;
+							Speed=this.responseXML.getElementsByTagName('SPEED')[0].childNodes[0].nodeValue;
+							document.getElementById("DirectionValue").innerHTML = Direction;
+							document.getElementById("SpeedValue").innerHTML = Speed;
+							document.getElementById("SpeedSlider").value=Speed*Direction;
+						}
+					}
+				}
+				
+				request.open("GET","AjaxControlDataExchange?"+nocache,true);
+				request.send(null);
+				//setTimeout('GetWebserverData()',200);
+			
+		}
+		
+		function SetDirection(){
+			
+			if(Direction==-1)
+			{
+				Direction=1;
+			}
+			else
+			{
+				Direction=-1;
+			}
+
+			document.getElementById("DirectionValue").innerHTML = Direction;
+			SendValueFunction();
+		}
+		
+		function SetSpeed(){
+			Speed=document.getElementById("SpeedSlider").value;
+			document.getElementById("SpeedValue").innerHTML = Speed;	
+			SendValueFunction();		
+		}
+		
+		function StopSpeed(){
+			Speed=0;
+			document.getElementById("SpeedSlider").value=Speed;
+			document.getElementById("SpeedValue").innerHTML = Speed;	
+			SendValueFunction();		
+		}
+		
+		function SetLightMode(){
+			if(LightMode==0)
+			{
+				LightMode=1;
+			}
+			else
+			{
+				LightMode=0;
+			}
+			document.getElementById("LightModeValue").innerHTML = LightMode;	
+			SendValueFunction();		
+		}
+		
+		function SetLightFront(){
+			if(LightFront==0)
+			{
+				LightFront=1;
+			}
+			else
+			{
+				LightFront=0;
+			}
+			document.getElementById("LightFrontValue").innerHTML = LightFront;	
+			SendValueFunction();		
+		}
+		
+		function SetLightBack(){
+			if(LightBack==0)
+			{
+				LightBack=1;
+			}
+			else
+			{
+				LightBack=0;
+			}
+			document.getElementById("LightBackValue").innerHTML = LightBack;	
+			SendValueFunction();		
+		}
+		
+		function SendValueFunction() {
+				nocache = "&nocache=" + Math.random()*1000000;
+				var request = new XMLHttpRequest();
+				request.onreadystatechange=function()
+				{					
+					if(this.readyState==4 && this.status==200)
+					{
+						if(this.responseXML != null)
+						{
+							//extract XML data from XML file
+							//document.getElementById("IPAdr").value =
+								//this.responseXML.getElementsByTagName('IPAdr')[0].childNodes[0].nodeValue;
+						}
+					}
+				}
+				
+				request.open("GET","AjaxControlDataExchange?SpeedValue="+Speed*Direction+"&DirectionValue="+Direction+"&LightMode="+LightMode+"&LightFront="+LightFront+"&LightBack="+LightBack+nocache,true);
+				request.send(null);
+				//setTimeout('GetWebserverData()',200);
+			}	
+			
+		</script>
+		
+		
+	</head>
+	<body id="inhalt" onload="OnloadFunction()" >
+        <header>
+		<span style="float: left; cursor:pointer" onclick="openNav()">&#9776; Men&#252;</span>
+		<h1 style="float: center;" >Home</h1>
+        </header>
+<div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+  <a href="index.html">Home</a>
+  <a href="config.html">Config</a>
+  <a href="status.html">Status</a>
+</div>
+
+
+        <hr>
+		<p>
+		<button id="FrontButton" onclick="SetLightFront()" style="margin: 40px;">Front</button>
+		<button id="BackButton" onclick="SetLightBack()" style="margin: 40px;">Back</button>
+        <button id="ModeButton" onclick="SetLightMode()" style="margin: 40px;">Mode</button>
+		<br/>        
+		<button id="DirectionButton" onclick="SetDirection()" style="margin: 40px;">Direction</button>
+        <button id="StopButton" onclick="StopSpeed()" style="margin: 40px;">STOP</button>
+		</p>
+<div class="slidecontainer" style="margin: 40px;">
+  <input type="range" min="0" max="100" value="0" class="slider" id="SpeedSlider" oninput="SetSpeed()">
+</div>
+	<br>
+		<p>
+		<span id="LightFrontValue" style="margin: 40px;">...</span>
+		<span id="LightModeValue" style="margin: 40px;">...</span>
+		<span id="LightBackValue" style="margin: 40px;">...</span>
+		</p>
+        <p><span id="SpeedValue" style="margin: 40px;">...</span> <span id="DirectionValue" style="margin: 40px;">...</span></p>
+        <br/>
+	<p><button id="ScreenButton" onclick="vollbild()" style="margin: 40px;">Fullscreen</button></p>
+		
+	<br>	
+	<tail><a href="http://www.rocrail.net">www.rocrail.net</a> Marcel Maage 2018</tail>
+	</body>
+</html>
