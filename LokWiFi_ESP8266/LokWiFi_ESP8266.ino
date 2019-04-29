@@ -39,10 +39,8 @@
 #endif
 
 #ifndef STASSID
-#define STASSID "AndroidAP"
-#define STAPSK  "bhhv0656"
-//#define STASSID "TP-LINK_1C06"
-//#define STAPSK  "50539239"
+#define STASSID "DummyLok"
+#define STAPSK  "12345678"
 #endif
 
 #define HOSTSIZE  30
