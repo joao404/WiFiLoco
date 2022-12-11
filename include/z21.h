@@ -17,6 +17,7 @@
 #pragma once
 
 #include "z21/z21InterfaceObserver.h"
+#include <array>
 
 class z21 : public virtual z21InterfaceObserver
 {
@@ -36,7 +37,8 @@ private:
 
     bool m_debug;
 
-    uint32_t m_lastPingSendTimeINms{0};
+    uint32_t m_minimumCmdIntervalINms{100};
+    uint32_t m_lastSpeedCmdTimeINms{0};
 
     // Pins
     int m_pwmPin1{D1};     // Nodemcu PWM pin
@@ -47,27 +49,19 @@ private:
     // Locomotive Control
     int m_direction{0};
     int m_speed{0};
-    int m_lightMode{0}; // 0 = No automatic change , 1 = automatic change with activated leds
-    int m_lightFrontOn{0};
-    int m_lightBackOn{0};
+    bool m_emergencyBreak{false};
+    std::array<uint8_t, 31> m_functions;
 
     uint16_t getSerialNumber() override;
 
     void setLightControl();
     void setMotorControl();
 
-    // onCallback
+    void notifyLocoState(uint8_t client, uint16_t Adr);
 
     // Z21
-    // void notifyz21InterfacegetSystemInfo(uint8_t client) override;
-
-    // void notifyz21InterfaceRailPower(EnergyState State) override;
-
-    // void notifyz21InterfaceAccessoryInfo(uint16_t Adr, uint8_t &position) override;
-    // void notifyz21InterfaceAccessory(uint16_t Adr, bool state, bool active) override;
-
-    // // void notifyz21InterfaceExtAccessory(uint16_t Adr, byte state) override;
-
+    void notifyz21InterfacegetSystemInfo(uint8_t client) override;
+    void notifyz21InterfaceRailPower(EnergyState State) override;
     void notifyz21InterfaceLocoState(uint16_t Adr, uint8_t data[]) override;
     void notifyz21InterfaceLocoFkt(uint16_t Adr, uint8_t type, uint8_t fkt) override;
     void notifyz21InterfaceLocoSpeed(uint16_t Adr, uint8_t speed, uint8_t stepConfig) override;
