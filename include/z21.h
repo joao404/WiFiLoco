@@ -28,7 +28,7 @@ public:
 
     void cyclic();
 
-    void update(Observable &observable, void *data) override;
+    void update(Observable<Udp::Message> &observable, Udp::Message *data) override;
 
 private:
     // const uint32_t z21Uid{0xBADEAFFE};
@@ -41,16 +41,16 @@ private:
     uint32_t m_lastSpeedCmdTimeINms{0};
 
     // Pins
-    int m_pwmPin1{D1};     // Nodemcu PWM pin
-    int m_pwmPin2{D2};     // Nodemcu PWM pin
-    int m_ledFrontPin{D5}; // Gpio-14 of nodemcu esp8266
-    int m_ledBackPin{D6};  // Gpio-12 of nodemcu esp8266
+    int m_pwmPin1{5};//D1};     // Nodemcu PWM pin
+    int m_pwmPin2{4};//D2};     // Nodemcu PWM pin
+    int m_ledFrontPin{14};//D5}; // Gpio-14 of nodemcu esp8266
+    int m_ledBackPin{12};//D6};  // Gpio-12 of nodemcu esp8266
 
     // Locomotive Control
     int m_direction{0};
     int m_speed{0};
     bool m_emergencyBreak{false};
-    std::array<uint8_t, 31> m_functions;
+    std::array<uint8_t, 32> m_functions;
 
     uint16_t getSerialNumber() override;
 

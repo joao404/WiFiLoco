@@ -30,7 +30,7 @@ void UdpInterfaceEsp8266::begin()
 {
   if (!m_Udp.begin(m_port))
   {
-    Serial.printf("UDP Init failed\n");
+    Serial.println("UDP Init failed");
   }
 }
 
@@ -49,17 +49,17 @@ void UdpInterfaceEsp8266::handlePacket(uint8_t client, uint8_t *packet, size_t p
       {
         break;
       }
-      UdpMessage udpMessage{client, &(packet[index])};
+      Udp::Message udpMessage{client, &(packet[index])};
       notify(&udpMessage);
       left_size -= length;
     }
   }
 }
 
-bool UdpInterfaceEsp8266::transmit(UdpMessage &message)
+bool UdpInterfaceEsp8266::transmit(Udp::Message &message)
 {
   // send data now via new interface using transmit function
- bool returnValue{false};
+  bool returnValue{true};
   uint16_t len = message.data[0] + (message.data[1] << 8);
   if (message.client == 0x00)
   { // Broadcast
@@ -82,13 +82,28 @@ bool UdpInterfaceEsp8266::transmit(UdpMessage &message)
     // }
     // Serial.println("B");
     // m_Udp.broadcastTo(message.data, message.data[0], m_port)
-    m_Udp.beginPacket(IPAddress(192, 168, 0, 255), m_port);
-    m_Udp.write(message.data, len);
-    if(m_Udp.endPacket())
+    // m_Udp.beginPacket(IPAddress(255, 255, 255, 255), m_port);
+    // m_Udp.write(message.data, len);
+    // if(m_Udp.endPacket())
+    // {
+    //   returnValue = true;
+    // }
+    for (byte i = 0; i < m_countIP; i++)
     {
-      returnValue = true;
+      if (m_mem[i].time > 0)
+      {
+        m_Udp.beginPacket(m_mem[message.client - 1].IP, m_port);
+        m_Udp.write(message.data, len);
+        if (m_Udp.endPacket())
+        {
+          returnValue &= true;
+        }
+        else
+        {
+          returnValue = false;
+        }
+      }
     }
-    m_Udp.endPacket();
   }
   else
   {
@@ -102,15 +117,15 @@ bool UdpInterfaceEsp8266::transmit(UdpMessage &message)
     // Serial.print("\n");
     m_Udp.beginPacket(m_mem[message.client - 1].IP, m_port);
     m_Udp.write(message.data, len);
-    if(m_Udp.endPacket())
+    if (!m_Udp.endPacket())
     {
-      returnValue = true;
+      returnValue = false;
     }
   }
   return returnValue;
 }
 
-bool UdpInterfaceEsp8266::receive(UdpMessage &message)
+bool UdpInterfaceEsp8266::receive(Udp::Message &message)
 {
   return false;
 }
@@ -153,12 +168,11 @@ void UdpInterfaceEsp8266::cyclic()
   int packetSize = m_Udp.parsePacket();
   if (packetSize)
   {
-    uint8_t packetBuffer[packetSize + 1];
-    int len = m_Udp.read(packetBuffer, packetSize);
+    int len = m_Udp.read(m_packetBuffer, sizeof(m_packetBuffer));
     if (len > 0)
     {
-      packetBuffer[len] = 0;
-      handlePacket(addIP(m_Udp.remoteIP()), packetBuffer, len);
+      m_packetBuffer[len] = 0;
+      handlePacket(addIP(m_Udp.remoteIP()), m_packetBuffer, len);
     }
   }
 

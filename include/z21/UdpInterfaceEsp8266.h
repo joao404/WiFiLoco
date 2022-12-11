@@ -40,9 +40,9 @@ public:
   void begin() override;
   void cyclic();
 
-  bool transmit(UdpMessage &message) override;
+  bool transmit(Udp::Message &message) override;
 
-  bool receive(UdpMessage &message) override;
+  bool receive(Udp::Message &message) override;
 
 protected:
   void handlePacket(uint8_t client, uint8_t *packet, size_t packetLength);
@@ -53,6 +53,8 @@ private:
   std::unique_ptr<listofIP[]> m_mem;
   uint16_t m_maxNumberOfClients;
   byte m_countIP; // zähler für Eintragungen
+
+  uint8_t m_packetBuffer[1500];
 
   // will store last time of IP decount updated
   unsigned long m_IPpreviousMillis;
