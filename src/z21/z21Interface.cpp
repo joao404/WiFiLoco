@@ -805,8 +805,8 @@ void z21Interface::setCVPOMBYTE(uint16_t CVAdr, uint8_t value)
 // Zustand R�ckmeldung non - Z21 device - Busy!
 void z21Interface::setLocoStateExt(int Adr)
 {
-	uint8_t ldata[6];
-	memset(ldata, 0, sizeof(ldata));
+	std::array<uint8_t, 8> ldata;
+	ldata.fill(0);
 	notifyz21InterfaceLocoState(Adr, ldata); // uint8_t Steps[0], uint8_t Speed[1], uint8_t F0[2], uint8_t F1[3], uint8_t F2[4], uint8_t F3[5]
 
 	uint8_t data[9];
@@ -820,7 +820,7 @@ void z21Interface::setLocoStateExt(int Adr)
 		data[3] = 2; // 28 steps
 	if ((ldata[0] & 0x03) == static_cast<uint8_t>(StepConfig::Step128))
 		data[3] = 4;		  // 128 steps
-	data[3] = data[3] | 0x08; // BUSY!
+	// data[3] = data[3] | 0x08; // BUSY!
 
 	data[4] = (char)ldata[1]; // DSSS SSSS
 	data[5] = (char)ldata[2]; // F0, F4, F3, F2, F1
@@ -839,8 +839,8 @@ void z21Interface::returnLocoStateFull(uint8_t client, uint16_t Adr, bool bc)
 // bc = true => to inform also other client over the change.
 // bc = false => just ask about the loco state
 {
-	uint8_t ldata[6];
-	memset(ldata, 0, sizeof(ldata));
+	std::array<uint8_t, 8> ldata;
+	ldata.fill(0);
 	notifyz21InterfaceLocoState(Adr, ldata); // uint8_t Steps[0], uint8_t Speed[1], uint8_t F0[2], uint8_t F1[3], uint8_t F2[4], uint8_t F3[5]
 
 	uint8_t data[9];

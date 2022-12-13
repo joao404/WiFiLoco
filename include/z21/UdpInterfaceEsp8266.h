@@ -18,7 +18,8 @@
 
 #include <Arduino.h>
 // #include <WiFiUDP.h>
-#include <WiFiUdp.h>
+// #include <WiFiUdp.h>
+#include "ESPAsyncUDP.h"
 #include "z21/UdpInterface.h"
 #include <memory>
 
@@ -49,12 +50,10 @@ protected:
 
 private:
   const int m_port;
-  WiFiUDP m_Udp;
+  AsyncUDP m_Udp;
   std::unique_ptr<listofIP[]> m_mem;
   uint16_t m_maxNumberOfClients;
   byte m_countIP; // zähler für Eintragungen
-
-  uint8_t m_packetBuffer[1500];
 
   // will store last time of IP decount updated
   unsigned long m_IPpreviousMillis;

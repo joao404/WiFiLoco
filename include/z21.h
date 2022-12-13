@@ -50,7 +50,8 @@ private:
     int m_direction{0};
     int m_speed{0};
     bool m_emergencyBreak{false};
-    std::array<uint8_t, 32> m_functions;
+    std::array<bool, 32> m_functions;
+    std::array<uint8_t, 7> m_locoData;
 
     uint16_t getSerialNumber() override;
 
@@ -62,7 +63,7 @@ private:
     // Z21
     void notifyz21InterfacegetSystemInfo(uint8_t client) override;
     void notifyz21InterfaceRailPower(EnergyState State) override;
-    void notifyz21InterfaceLocoState(uint16_t Adr, uint8_t data[]) override;
+    void notifyz21InterfaceLocoState(uint16_t Adr, std::array<uint8_t, 8>& data) override;
     void notifyz21InterfaceLocoFkt(uint16_t Adr, uint8_t type, uint8_t fkt) override;
     void notifyz21InterfaceLocoSpeed(uint16_t Adr, uint8_t speed, uint8_t stepConfig) override;
 };

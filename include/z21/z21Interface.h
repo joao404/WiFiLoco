@@ -312,7 +312,7 @@ protected:
 
 	virtual void notifyz21InterfaceExtAccessory(uint16_t Adr, uint8_t state){};
 
-	virtual void notifyz21InterfaceLocoState(uint16_t Adr, uint8_t data[]){};
+	virtual void notifyz21InterfaceLocoState(uint16_t Adr, std::array<uint8_t, 8>& data){};
 	virtual void notifyz21InterfaceLocoFkt(uint16_t Adr, uint8_t type, uint8_t fkt){};
 	virtual void notifyz21InterfaceLocoSpeed(uint16_t Adr, uint8_t speed, uint8_t stepConfig){};
 

@@ -28,9 +28,25 @@ UdpInterfaceEsp8266::UdpInterfaceEsp8266(uint16_t maxNumberOfClients, int16_t po
 
 void UdpInterfaceEsp8266::begin()
 {
-  if (!m_Udp.begin(m_port))
+  if (m_countIP <= 0)
   {
-    Serial.println("UDP Init failed");
+    Serial.println("m_countIP error");
+  }
+  if (m_Udp.listen(m_port))
+  {
+    m_Udp.onPacket([this](AsyncUDPPacket packet)
+                   {
+      // Serial.println("New");
+      // Serial.println(packet.remoteIP());
+      // Serial.println(packet.length());
+      // for(size_t i = 0; i < packet.length(); i++)
+      // {
+      //   Serial.print(packet.data()[i], HEX);
+      //   Serial.print(" ");
+      // }
+      // Serial.println();
+      // Serial.flush();
+      handlePacket(addIP(packet.remoteIP()), packet.data(), packet.length()); });
   }
 }
 
@@ -40,18 +56,23 @@ void UdpInterfaceEsp8266::handlePacket(uint8_t client, uint8_t *packet, size_t p
 
   if (4 <= packetLength)
   {
+    // uint16_t length = (packet[1] << 8) + packet[0];
+    // if (length <= packetLength)
+    // {
+    //   Udp::Message udpMessage{client, &(packet[0])};
+    //   notify(&udpMessage);
+    // }
     uint16_t index = 0;
     uint16_t length = 0;
-    for (size_t left_size = packetLength; left_size > 3;)
+    for (size_t left_size = packetLength; left_size > 3;left_size -= length, index += length)
     {
       length = (packet[index + 1] << 8) + packet[index];
-      if (left_size < length)
+      if ((left_size < length) || (0 == length))
       {
         break;
       }
       Udp::Message udpMessage{client, &(packet[index])};
       notify(&udpMessage);
-      left_size -= length;
     }
   }
 }
@@ -59,70 +80,23 @@ void UdpInterfaceEsp8266::handlePacket(uint8_t client, uint8_t *packet, size_t p
 bool UdpInterfaceEsp8266::transmit(Udp::Message &message)
 {
   // send data now via new interface using transmit function
-  bool returnValue{true};
+
   uint16_t len = message.data[0] + (message.data[1] << 8);
   if (message.client == 0x00)
-  { // Broadcast
-    // Serial.print("B");
-    //   for(uint16_t i=0;i<len;i++)
-    //   {
-    //     Serial.print(" ");
-    //     Serial.print(data[i]);
-    //   }
-    // Serial.print("\n");
-    // if(0 == countIP)
-    // {
-    //   Udp.broadcastTo(data, len, port);//, TCPIP_ADAPTER_IF_AP);
-    // }
-
-    // for (byte s = 0; s < countIP; s++) {
-    //   if (mem[s].time > 0) {
-    //     Udp.writeTo(data, len, mem[s].IP, port);
-    //   }
-    // }
-    // Serial.println("B");
-    // m_Udp.broadcastTo(message.data, message.data[0], m_port)
-    // m_Udp.beginPacket(IPAddress(255, 255, 255, 255), m_port);
-    // m_Udp.write(message.data, len);
-    // if(m_Udp.endPacket())
-    // {
-    //   returnValue = true;
-    // }
-    for (byte i = 0; i < m_countIP; i++)
+  {
+    if (m_Udp.broadcastTo(message.data, len, m_port) == len) //, TCPIP_ADAPTER_IF_AP);
     {
-      if (m_mem[i].time > 0)
-      {
-        m_Udp.beginPacket(m_mem[message.client - 1].IP, m_port);
-        m_Udp.write(message.data, len);
-        if (m_Udp.endPacket())
-        {
-          returnValue &= true;
-        }
-        else
-        {
-          returnValue = false;
-        }
-      }
+      return true;
     }
   }
   else
   {
-    // Serial.print("C ");
-    // Serial.print(mem[client-1].IP);
-    // for(uint16_t i=0;i<len;i++)
-    // {
-    //   Serial.print(" ");
-    //   Serial.print(data[i]);
-    // }
-    // Serial.print("\n");
-    m_Udp.beginPacket(m_mem[message.client - 1].IP, m_port);
-    m_Udp.write(message.data, len);
-    if (!m_Udp.endPacket())
+    if (m_Udp.writeTo(message.data, len, m_mem[message.client - 1].IP, m_port) == len)
     {
-      returnValue = false;
+      return true;
     }
   }
-  return returnValue;
+  return false;
 }
 
 bool UdpInterfaceEsp8266::receive(Udp::Message &message)
@@ -165,17 +139,6 @@ byte UdpInterfaceEsp8266::addIP(IPAddress ip)
 
 void UdpInterfaceEsp8266::cyclic()
 {
-  int packetSize = m_Udp.parsePacket();
-  if (packetSize)
-  {
-    int len = m_Udp.read(m_packetBuffer, sizeof(m_packetBuffer));
-    if (len > 0)
-    {
-      m_packetBuffer[len] = 0;
-      handlePacket(addIP(m_Udp.remoteIP()), m_packetBuffer, len);
-    }
-  }
-
   // Nutzungszeit IP's bestimmen
   unsigned long currentMillis = millis();
   if (currentMillis - m_IPpreviousMillis > interval)

@@ -26,7 +26,7 @@ const int16_t z21Port{21105};
 
 std::shared_ptr<UdpInterfaceEsp8266> udpInterface = std::make_shared<UdpInterfaceEsp8266>(5, z21Port, false);
 
-z21 Z21Connection(hash, serialNumber, z21Interface::HwType::Z21_XL, swVersion, xprintf, true, false, false);
+z21 Z21Connection(hash, serialNumber, z21Interface::HwType::Z21_NEW, swVersion, xprintf, false, false, false);
 
 void setup()
 {
