@@ -63,7 +63,7 @@ void z21::setLightControl()
 {
   bool backLightOn{false};
   bool frontLightOn{false};
-
+  bool forward{bitRead(m_locoData[1], 7)};
   // function 0 => light on
   // function 1 => both directions if true
   // function 2 => deactivate front light
@@ -74,13 +74,19 @@ void z21::setLightControl()
     // default light mode is only single light in one direction
     if (m_functions[1])
     {
-      if (-1 == m_direction) // backward
+      if (forward)
       {
-        backLightOn = true;
+        if (!m_functions[2])
+        {
+          frontLightOn = true;
+        }
       }
       else
       {
-        frontLightOn = true;
+        if (!m_functions[3])
+        {
+          backLightOn = true;
+        }
       }
     }
     else
@@ -90,7 +96,7 @@ void z21::setLightControl()
     }
   }
 
-  if ((m_functions[2]) || frontLightOn)
+  if (frontLightOn)
   {
     digitalWrite(m_ledFrontPin, HIGH);
   }
@@ -99,7 +105,7 @@ void z21::setLightControl()
     digitalWrite(m_ledFrontPin, LOW);
   }
 
-  if ((m_functions[3]) || backLightOn)
+  if (backLightOn)
   {
     digitalWrite(m_ledBackPin, HIGH);
   }
@@ -291,7 +297,7 @@ void z21::notifyz21InterfaceLocoSpeed(uint16_t Adr, uint8_t speed, uint8_t stepC
   {
     m_speed = speedWithoutDirection - 1;
 
-    m_direction = speed & 0x80 ? 1 : -1;
+    m_direction = bitRead(m_locoData[1], 7) ? 1 : -1;
   }
 
   if (m_emergencyBreak || (0 == m_speed))
