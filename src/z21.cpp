@@ -35,12 +35,12 @@ void z21::begin()
   pinMode(m_ledFrontPin, OUTPUT);
   pinMode(m_ledBackPin, OUTPUT);
   // // change PWM Frequency
-  analogWriteFreq(5000);
+  analogWriteFreq(12000);
 
   analogWriteRange(128);
 
-  analogWrite(m_pwmPin1, 0); // maxvalue is 1024, max Speed value is 100
-  analogWrite(m_pwmPin2, 0); // maxvalue is 1024, max Speed value is 100
+  pinMode(m_pwmPin1, OUTPUT);
+  pinMode(m_pwmPin2, OUTPUT);
 
   z21InterfaceObserver::begin();
 }
@@ -119,25 +119,22 @@ void z21::setMotorControl()
 {
   if (1 == m_direction) // forward
   {
-    analogWrite(m_pwmPin1, m_speed); // maxvalue is 1024, max Speed value is 100
-    analogWrite(m_pwmPin2, 0);       // maxvalue is 1024, max Speed value is 100
-    // digitalWrite(a3, HIGH);
+    analogWrite(m_pwmPin1, m_speed);
+    digitalWrite(m_pwmPin2, LOW);
   }
   else if (-1 == m_direction) // backward
   {
-    analogWrite(m_pwmPin1, 0);       // maxvalue is 1024, max Speed value is 100
-    analogWrite(m_pwmPin2, m_speed); // maxvalue is 1024, max Speed value is 100
-    // digitalWrite(a3, HIGH);
+    analogWrite(m_pwmPin2, m_speed);
+    digitalWrite(m_pwmPin1, LOW);
   }
   else
-  {                            // stop
-    analogWrite(m_pwmPin1, 0); // maxvalue is 1024, max Speed value is 100
-    analogWrite(m_pwmPin2, 0); // maxvalue is 1024, max Speed value is 100
+  { // stop
+    digitalWrite(m_pwmPin1, LOW);
+    digitalWrite(m_pwmPin2, LOW);
   }
 }
 
 // onCallback
-
 void z21::notifyz21InterfaceRailPower(EnergyState State)
 {
   if (m_debug)
