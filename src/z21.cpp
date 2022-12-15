@@ -119,13 +119,13 @@ void z21::setMotorControl()
 {
   if (1 == m_direction) // forward
   {
-    analogWrite(m_pwmPin1, m_speed);
-    digitalWrite(m_pwmPin2, LOW);
+    analogWrite(m_pwmPin2, m_speed);
+    digitalWrite(m_pwmPin1, LOW);
   }
   else if (-1 == m_direction) // backward
   {
-    analogWrite(m_pwmPin2, m_speed);
-    digitalWrite(m_pwmPin1, LOW);
+    analogWrite(m_pwmPin1, m_speed);
+    digitalWrite(m_pwmPin2, LOW);
   }
   else
   { // stop
